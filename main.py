@@ -50,7 +50,7 @@ if len(sys.argv) >= 2:
 		if(len(sys.argv) < 3):
 			print("A message is needed for the log.")
 		else:
-			tracker.end(sys.argv[2])
+			tracker.end(" ".join(sys.argv[2::]) )
 
 	if command.lower() == 'cancel':
 		tracker.cancel()
