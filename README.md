@@ -3,7 +3,7 @@
 I built this on python version 2.7.15
 
 
-This program tracks time spent on tasks through the command line.
+This program tracks time spent on tasks through the command line. Storing them in a sqlite database in your current directory.
 
 
 To run the program type `python path/to/script/main.py start`   
