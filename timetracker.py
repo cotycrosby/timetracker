@@ -47,19 +47,14 @@ class TimeTracker:
 		# round up to next quarter hour - ie: .45 hours to .5 hours (25 minutes to 30 minutes)
 		timeSpent = timeSpent - (timeSpent % .25 ) + .25
 
-		day = self.findCurrentDateInDb()
-
-		if( day == None ):
-			self.insertDate(timeSpent, message)
-			print('Date information created.')
-		else:
-			day = day[0]
-			self.updateDate(day, timeSpent, message)
-			print('Date information appended.')
+		self.updateDate(timeSpent, message)
 
 		# delete the session record
 		self.sessionEnd()
 
+	def add(self, time, message):
+		self.updateDate(time, message)
+		
 
 
 	### Displays all records for a given month and year
@@ -121,7 +116,6 @@ class TimeTracker:
 
 
 
-
 	#### Helper functions ####
 
 	def findCurrentDateInDb(self):
@@ -131,7 +125,15 @@ class TimeTracker:
 		valueString = " '{}', {}, '{}'".format(str(self.currentDate), hours, message)
 		self.db.insert('days', 'date, hours, message', valueString )
 
-	def updateDate(self, day, hours, message):
+	def updateDate(self, hours, message):
+		day = self.findCurrentDateInDb()
+
+		if( day == None ):
+			self.insertDate(hours, message)
+			print('Date information created.')
+			return;
+
+		day = day[0]
 
 		setString = "hours = hours + " + str(hours) + ", message = message || ':" + message + "'"
 		whereClause = "date = '" + day + "'"
@@ -177,106 +179,3 @@ class TimeTracker:
 	def sessionEnd(self):
 		return self.db.delete('session', "key = 'startTime'")
 
-
-# class TimeTracker:
-
-# 	__DB_NAME = 'timetracker.db'
-
-# 	### Constructor
-# 	def __init__(self):
-
-# 		# initialize the db
-# 		self.connection = sqlite3.connect(self.__DB_NAME, detect_types=sqlite3.PARSE_DECLTYPES) 
-# 		self.cursor = self.connection.cursor();
-
-
-# 		# set the current date
-# 		self.currentDate = datetime.now().date()
-
-# 		# print(self.findDate())
-
-# 		# self.invoice(3, 2019)
-		
-
-	
-# 	### Destructor
-# 	def __del__(self):
-# 		self.connection.close()
-
-
-# 	### public
-# 	# allows the user to change the date for inserts.
-# 	def changeDate(dateString):
-# 		self.currentDate = dateString
-
-
-# 	def findDate(self):
-# 		self.cursor.execute("SELECT * FROM days WHERE date = ?", (self.currentDate,	));
-# 		return self.cursor.fetchone()
-
-
-# 	### updates a sentinal record in the database to store the starting time to track
-# 	def start(self):
-# 		now = datetime.now();
-# 		self.cursor.execute("UPDATE days SET date = DATETIME('now','localtime') WHERE hours = -1")
-# 		self.connection.commit();
-
-# 	def end(self , message = "No message"):
-# 		now = datetime.now()
-# 		# Get the stored time from the db.
-# 		self.cursor.execute("SELECT date FROM days where hours = -1");
-# 		startTime = self.cursor.fetchone()[0];
-# 		# convert the time from  unicode to datetime
-# 		startTime = datetime.strptime(startTime, "%Y-%m-%d %H:%M:%S")
-# 		#find the difference
-# 		timeDiff = now - startTime
-
-# 		#convert to double
-# 		timeDiff = round(timeDiff.total_seconds()/60/60, 2)
-
-# 		# round up to next quarter hour
-# 		hoursWorked = timeDiff - (timeDiff % .25 ) + .25
-
-
-# 		# check to see if I already worked that day.
-# 		self.cursor.execute("SELECT * FROM days where date = ?", (self.currentDate, ))
-
-# 		result = self.cursor.fetchone()	
-
-# 		# if I don't have an entry for the day create one	
-# 		if result == None:
-# 			self.cursor.execute("INSERT INTO days VALUES(?, ? ?)", (self.currentDate, hoursWorked, message))
-# 		else:
-# 			# otherwise add on the hours and append the message
-# 			hoursWorked += result[1]
-# 			message = result[2] + ":" + message # message probably shouldn't include a colon.
-# 			self.cursor.execute("UPDATE days SET hours = ?, message = ?", (hoursWorked, message))
-
-# 		self.connection.commit()
-
-
-# 	def invoice(self, month, year):
-
-# 		_, numDays = monthrange(year, month)
-
-
-
-# 		## format the year and month 
-# 		year = str(year)
-# 		if month < 10:
-# 			month = '0' + str(month)
-# 		else:
-# 			month = str(month)
-
-# 		start = year + '-' + month + '-01';
-# 		end = year + '-' + month + '-' + str(numDays);
-
-# 		self.cursor.execute("SELECT * FROM days WHERE date between ? and ?", (start, end))
-# 		print(self.cursor.fetchall())
-
-
-
-
-
-# 	def __del__(self):
-# 		self.connection.close()

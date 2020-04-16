@@ -1,6 +1,7 @@
 from timetracker import TimeTracker
 import os
 import sys
+import datetime
 
 """
 	Main.py
@@ -58,12 +59,28 @@ if len(sys.argv) >= 2:
 	if command.lower() == 'status':
 		tracker.status()
 
+	if command.lower() == 'add':
+		if len(sys.argv) < 4:
+			print("Adding requires the time spent and a message")
+		else:
+			time = sys.argv[2]
+			message = " ".join(sys.argv[3::])
+			print("Time: " + time)
+			print("Message: " + message);
+			tracker.add(time, message)
+
 
 	if command.lower() == 'invoice':
-		if len(sys.argv) < 4: 
-			print("Invoice requires a month and year")
-		else:
+		today = datetime.date.today()
+		year = today.year
+		month = today.month
+		
+		if len(sys.argv) == 3:
+			tracker.invoice(int(sys.argv[2]), year)
+		elif len(sys.argv) == 4:
 			tracker.invoice(int(sys.argv[2]), int(sys.argv[3]))
+		else:
+			tracker.invoice(month, year)
 
 else:
 	print("Time tracking requires arguements. Try -h to see commands.")
